@@ -1,0 +1,61 @@
+#!/bin/bash
+
+here=$( cd $( dirname $0 ) ; pwd )
+. "$here/../etc/functions"
+
+db="$here/../databases/chap4_4.db"
+
+# 4.1.5
+
+do_groonga $db '
+table_create --name Site --flags TABLE_HASH_KEY --key_type ShortText
+'
+
+# 4.1.7
+
+do_groonga $db '
+column_create --table Site --name title --type ShortText
+'
+
+# 4.1.8 
+
+do_groonga $db '
+load --table Site
+[
+{"_key":"http://example.org/","title":"This is test record 1!"},
+{"_key":"http://example.net/","title":"test record 2."},
+{"_key":"http://example.com/","title":"test test record three."},
+{"_key":"http://example.net/afr","title":"test record four."},
+{"_key":"http://example.org/aba","title":"test test test record five."},
+{"_key":"http://example.com/rab","title":"test test test test record six."},
+{"_key":"http://example.net/atv","title":"test test test record seven."},
+{"_key":"http://example.org/gat","title":"test test record eight."},
+{"_key":"http://example.com/vdw","title":"test test record nine."},
+]
+'
+
+# 4.1.10
+
+do_groonga $db '
+table_create --name Terms --flags TABLE_PAT_KEY|KEY_NORMALIZE --key_type ShortText --default_tokenizer TokenBigram
+'
+
+# 4.1.11
+
+do_groonga $db 'column_create --table Terms --name blog_title --flags COLUMN_INDEX|WITH_POSITION --type Site --source title'
+
+
+
+# 4.4.3
+do groonga $db '
+column_create --table Site --name location --type WGS84GeoPoint
+'
+
+
+do groonga $db '
+load --table Site
+[
+ {"_key":"http://example.org/","location":"128452975x503157902"}
+ {"_key":"http://example.net/","location":"128487316x502920929"},
+]
+'

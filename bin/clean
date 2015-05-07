@@ -1,0 +1,6 @@
+#!/bin/sh
+
+here=$( cd $( dirname $0 ) ; pwd )
+
+/bin/rm -f $here/../databases/chap*
+

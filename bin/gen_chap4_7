@@ -1,0 +1,210 @@
+#!/bin/bash
+
+here=$( cd $( dirname $0 ) ; pwd )
+. "$here/../etc/functions"
+
+db="$here/../databases/chap4_7.db"
+
+# 4.7.1.1
+
+do_groonga $db '
+table_create --name Blog1 --flags TABLE_HASH_KEY --key_type ShortText
+'
+
+do_groonga $db '
+column_create --table Blog1 --name title --flags COLUMN_SCALAR --type ShortText
+'
+
+do_groonga $db '
+column_create --table Blog1 --name message --flags COLUMN_SCALAR --type ShortText
+'
+
+do_groonga $db '
+table_create --name IndexBlog1 --flags TABLE_PAT_KEY|KEY_NORMALIZE --key_type ShortText --default_tokenizer TokenBigram
+'
+
+do_groonga $db '
+column_create --table IndexBlog1 --name index_title --flags COLUMN_INDEX|WITH_POSITION --type Blog1 --source title
+'
+
+do_groonga $db '
+column_create --table IndexBlog1 --name index_message --flags COLUMN_INDEX|WITH_POSITION --type Blog1 --source message
+'
+
+do_groonga $db '
+load --table Blog1
+[
+{"_key":"grn1","title":"groonga test","message":"groonga message"},
+{"_key":"grn2","title":"baseball result","message":"rakutan eggs 4 - 4 groonga moritars"},
+{"_key":"grn3","title":"groonga message","message":"none"}
+]
+'
+
+# 4.7.1.2
+
+
+do_groonga $db '
+table_create --name Blog2 --flags TABLE_HASH_KEY --key_type ShortText
+'
+
+do_groonga $db '
+column_create --table Blog2 --name title --flags COLUMN_SCALAR --type ShortText
+'
+
+do_groonga $db '
+column_create --table Blog2 --name message --flags COLUMN_SCALAR --type ShortText
+'
+
+do_groonga $db '
+table_create --name IndexBlog2 --flags TABLE_PAT_KEY|KEY_NORMALIZE --key_type ShortText --default_tokenizer TokenBigram
+'
+
+do_groonga $db '
+column_create --table IndexBlog2 --name index_blog --flags COLUMN_INDEX|WITH_POSITION|WITH_SECTION --type Blog2 --source title,message
+'
+
+do_groonga $db '
+load --table Blog2
+[
+{"_key":"grn1","title":"groonga test","message":"groonga message"},
+{"_key":"grn2","title":"baseball result","message":"rakutan eggs 4 - 4 groonga moritars"},
+{"_key":"grn3","title":"groonga message","message":"none"}
+]
+'
+
+
+
+# 4.7.3
+
+
+do_groonga $db '
+table_create Comments TABLE_HASH_KEY UInt32
+'
+do_groonga $db '
+column_create Comments content COLUMN_SCALAR ShortText
+'
+
+do_groonga $db '
+table_create Articles TABLE_NO_KEY
+'
+
+do_groonga $db '
+column_create Articles content COLUMN_SCALAR Text
+'
+
+do_groonga $db '
+column_create Articles comment COLUMN_SCALAR Comments
+'
+
+do_groonga $db '
+table_create Lexicon TABLE_PAT_KEY|KEY_NORMALIZE ShortText --default_tokenizer TokenBigram
+'
+
+do_groonga $db '
+column_create Lexicon articles_content COLUMN_INDEX|WITH_POSITION Articles content
+'
+
+do_groonga $db '
+column_create Lexicon comments_content COLUMN_INDEX|WITH_POSITION Comments content
+'
+
+do_groonga $db '
+column_create Comments article COLUMN_INDEX Articles comment
+'
+
+do_groonga $db '
+load --table Comments
+[
+{"_key": 1, "content": "I'"'"'m using groonga too!"},
+{"_key": 2, "content": "I'"'"'m using groonga and mroonga!"},
+{"_key": 3, "content": "I'"'"'m using mroonga too!"}
+]
+load --table Articles
+[
+{"content": "Groonga is fast!", "comment": 1},
+{"content": "Groonga is useful!"},
+{"content": "Mroonga is fast!", "comment": 3}
+]
+'
+
+
+
+
+
+do_groonga $db '
+table_create Replies2 TABLE_HASH_KEY UInt32
+'
+
+do_groonga $db '
+column_create Replies2 content COLUMN_SCALAR ShortText
+'
+
+do_groonga $db '
+table_create Comments2 TABLE_HASH_KEY UInt32
+'
+
+do_groonga $db '
+column_create Comments2 content COLUMN_SCALAR ShortText
+'
+
+do_groonga $db '
+column_create Comments2 comment COLUMN_SCALAR Replies2
+'
+
+do_groonga $db '
+table_create Articles2 TABLE_NO_KEY
+'
+
+do_groonga $db '
+column_create Articles2 content COLUMN_SCALAR Text
+'
+
+do_groonga $db '
+column_create Articles2 comment COLUMN_SCALAR Comments2
+'
+
+do_groonga $db '
+table_create Lexicon2 TABLE_PAT_KEY|KEY_NORMALIZE ShortText --default_tokenizer TokenBigram
+'
+
+do_groonga $db '
+column_create Lexicon2 articles_content COLUMN_INDEX|WITH_POSITION Articles2 content
+'
+
+do_groonga $db '
+column_create Lexicon2 comments_content COLUMN_INDEX|WITH_POSITION Comments2 content
+'
+
+do_groonga $db '
+column_create Lexicon2 replies_content COLUMN_INDEX|WITH_POSITION Replies2 content
+'
+
+do_groonga $db '
+column_create Comments2 article COLUMN_INDEX Articles2 comment
+'
+
+do_groonga $db '
+column_create Replies2 reply_to COLUMN_INDEX Comments2 comment
+'
+
+
+do_groonga $db '
+load --table Replies2
+[
+{"_key": 1, "content": "I'"'"'m using rroonga too!"},
+{"_key": 2, "content": "I'"'"'m using groonga and mroonga and rroonga!"},
+{"_key": 3, "content": "I'"'"'m using nroonga too!"}
+]
+load --table Comments2
+[
+{"_key": 1, "content": "I'"'"'m using groonga too!", "comment": 1},
+{"_key": 2, "content": "I'"'"'m using groonga and mroonga!", "comment": 2},
+{"_key": 3, "content": "I'"'"'m using mroonga too!"}
+]
+load --table Articles2
+[
+{"content": "Groonga is fast!", "comment": 1},
+{"content": "Groonga is useful!", "comment": 2},
+{"content": "Mroonga is fast!", "comment": 3}
+]
+'

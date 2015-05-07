@@ -1,0 +1,47 @@
+#!/bin/bash
+
+here=$( cd $( dirname $0 ) ; pwd )
+. "$here/../etc/functions"
+
+db="$here/../databases/chap4_8.db"
+
+# 4.8.1
+
+do_groonga $db '
+table_create --name Blog1 --flags TABLE_HASH_KEY --key_type ShortText
+'
+
+do_groonga $db '
+table_create --name PatPrefix --flags TABLE_PAT_KEY --key_type ShortText
+'
+
+do_groonga $db '
+load --table PatPrefix
+[
+{"_key":"James"}
+{"_key":"Jason"}
+{"_key":"Jennifer"},
+{"_key":"Jeff"},
+{"_key":"John"},
+{"_key":"Joseph"},
+]
+'
+
+# 4.8.2
+
+do_groonga $db '
+table_create --name PatSuffix --flags TABLE_PAT_KEY|KEY_WITH_SIS --key_type ShortText
+'
+
+do_groonga $db '
+column_create --table PatSuffix --name original --type Bool
+'
+
+do_groonga $db '
+load --table PatSuffix
+[
+{"_key":"ひろゆき","original":true},
+{"_key":"まろゆき","original":true},
+{"_key":"ひろあき","original":true},
+{"_key":"ゆきひろ","original":true}
+'

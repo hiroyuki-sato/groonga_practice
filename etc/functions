@@ -1,0 +1,18 @@
+#!/bin/sh
+
+function do_groonga(){
+  db=$1
+  cmd=$2
+  echo "--------------------------------------------------------"
+  echo "$cmd"
+  echo "--------------------------------------------------------"
+  echo ""
+  if [ -f $db ] ; then 
+    opts=""
+  else
+    opts="-n"
+  fi
+  #echo "groonga $opts $db "
+  echo "$cmd" | groonga $opts $db 
+}
+

@@ -1,0 +1,103 @@
+#!/bin/bash
+
+here=$( cd $( dirname $0 ) ; pwd )
+. "$here/../etc/functions"
+
+db="$here/../databases/chap4_3.db"
+
+
+# 4.3.1
+
+do_groonga $db '
+table_create --name ToyBox --flags TABLE_HASH_KEY --key_type ShortText
+'
+
+# 4.3.2
+
+do_groonga $db '
+column_create --table ToyBox --name is_animal --type Bool
+'
+
+do_groonga $db '
+load --table ToyBox
+[
+{"_key":"Monkey","is_animal":true}
+{"_key":"Flower","is_animal":false}
+{"_key":"Block"}
+]
+'
+
+# 4.3.3
+
+do_groonga $db '
+column_create --table ToyBox --name price --type Int8
+'
+
+do_groonga $db '
+column_create --table ToyBox --name weight --type Float
+'
+
+do_groonga $db '
+load --table ToyBox
+[
+{"_key":"Monkey","price":15.9}
+{"_key":"Flower","price":200,"weight":0.13}
+{"_key":"Block","weight":25.7}
+]
+'
+
+# 4.3.4
+
+do_groonga $db '
+column_create --table ToyBox --name name --type ShortText
+'
+do_groonga $db '
+load --table ToyBox
+[
+{"_key":"Monkey","name":"Grease"}
+{"_key":"Flower","name":"Rose"}
+]
+'
+
+# 4.3.4
+
+do_groonga $db '
+column_create --table ToyBox --name time --type Time
+'
+
+do_groonga $db '
+load --table ToyBox
+[
+{"_key":"Flower","time":1234567890.1234569999}
+{"_key":"Block","time":-1234567890}
+]
+'
+
+# 4.3.6
+
+
+do_groonga $db '
+column_create --table ToyBox --name location --type WGS84GeoPoint
+'
+
+do_groonga $db '
+load --table ToyBox
+[
+{"_key":"Monkey","location":"128452975x503157902"}
+{"_key":"Block","location":"35.6813819x139.7660839"}
+]
+'
+
+
+# 4.3.7
+
+do_groonga $db '
+column_create --table Site --name link --type Site
+'
+
+
+do_groonga $db '
+load --table Site
+[{"_key":"http://example.org/","link":"http://example.net/"}]
+select --table Site --output_columns _key,title,link._key,link.title --query title:@this
+'
