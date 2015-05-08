@@ -13,6 +13,10 @@ function do_groonga(){
     opts="-n"
   fi
   #echo "groonga $opts $db "
-  echo "$cmd" | groonga $opts $db 
+  if type jq > /dev/null 2>&1 ; then
+    echo "$cmd" | groonga $opts $db | jq .
+  else
+    echo "$cmd" | groonga $opts $db
+  fi
 }
 
