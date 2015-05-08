@@ -47,12 +47,12 @@ do_groonga $db 'column_create --table Terms --name blog_title --flags COLUMN_IND
 
 
 # 4.4.3
-do groonga $db '
+do_groonga $db '
 column_create --table Site --name location --type WGS84GeoPoint
 '
 
 
-do groonga $db '
+do_groonga $db '
 load --table Site
 [
  {"_key":"http://example.org/","location":"128452975x503157902"}
