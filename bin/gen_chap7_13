@@ -1,0 +1,31 @@
+#!/bin/bash
+
+here=$( cd $( dirname $0 ) ; pwd )
+. "$here/../etc/functions"
+
+db="$here/../databases/chap7_13.db"
+
+# 7.13.2. 使い方
+
+do_groonga $db '
+table_create Logs TABLE_NO_KEY
+column_create Logs message COLUMN_SCALAR Text
+load --table Logs
+[
+{"message": "host1:[error]: No memory"},
+{"message": "host1:[warning]: Remained disk space is less than 30%"},
+{"message": "host1:[error]: Disk full"},
+{"message": "host2:[error]: No memory"},
+{"message": "host2:[info]: Shutdown"}
+]
+'
+
+# 7.13.3. インデックス
+
+do_groonga $db '
+table_create RegexpLexicon TABLE_PAT_KEY ShortText \
+  --default_tokenizer TokenRegexp \
+  --normalizer NormalizerAuto
+column_create RegexpLexicon logs_message_index \
+  COLUMN_INDEX|WITH_POSITION Logs message
+'
